@@ -1,10 +1,10 @@
 <?php
-define("CURRENT_INSTANCE","erp");
+define("CURRENT_INSTANCE","school");
 define("SH_CURRENT_INSTANCE",CURRENT_INSTANCE);
 define('CURRENT_SERVER_IP', '127.0.0.1');
 $protocol = strtolower(substr($_SERVER["SERVER_PROTOCOL"],0,strpos( $_SERVER["SERVER_PROTOCOL"],'/'))).'://';
 define('CURRENT_HTTP_PROTOCOL',$protocol);
-define("SH_CURRENT_SCHOOL_DB",SH_CURRENT_INSTANCE);
+define("SH_CURRENT_SCHOOL_DB","erp");
 define("SH_CURRENT_FI_DB",SH_CURRENT_SCHOOL_DB);
 define("SH_DOCUMENTS", serialize (array('Transfer Certificate','Marks Sheets','Birth Certificate')));
 define('DB_USER', 'root');

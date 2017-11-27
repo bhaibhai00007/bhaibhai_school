@@ -730,7 +730,7 @@ class Bulk_upload_controller extends MY_Controller {
                                     $data[$fielsdArr[$i]]=$rs[0]->genderId;
                                 }else{
                                     $error = TRUE;
-                                    $errorMsgArr[] = $fielsdStringForAdminArr[$i] . " is not match with master data for gender at row no -" . $errorRowNo;
+                                    $errorMsgArr[] = $fielsdStringForAdminArr[$i] . " is match with master data for gender at row no -" . $errorRowNo;
                                 }
                             }
     
@@ -740,7 +740,7 @@ class Bulk_upload_controller extends MY_Controller {
                                     $data[$fielsdArr[$i]]=$rs[0]->bloodGroupId;
                                 }else{
                                     $error = TRUE;
-                                    $errorMsgArr[] = $fielsdStringForAdminArr[$i] . " is not match with master data for blood_group at row no -" . $errorRowNo;
+                                    $errorMsgArr[] = $fielsdStringForAdminArr[$i] . " is match with master data for blood_group at row no -" . $errorRowNo;
                                 }
                             }
 
@@ -750,17 +750,17 @@ class Bulk_upload_controller extends MY_Controller {
                                     $studentParentData[$fielsdArr[$i]]=$rs[0]->userId;
                                 }else{
                                     $error = TRUE;
-                                    $errorMsgArr[] = $fielsdStringForAdminArr[$i] . " is not match with master data for pareent email at row no -" . $errorRowNo;
+                                    $errorMsgArr[] = $fielsdStringForAdminArr[$i] . " is match with master data for pareent email at row no -" . $errorRowNo;
                                 }
                             }
 
                             if ($fielsdArr[$i] == 'classId') {
                                 $rs=get_data_generic_fun('sc_class','classId',array('numericName'=>trim($r[$i])));
                                 if(!empty($rs)){
-                                    $enrollData[$fielsdArr[$i]]=$rs[0]->classId;
+                                    $enrollData[$fielsdArr[$i]]=$rs[0]->userId;
                                 }else{
                                     $error = TRUE;
-                                    $errorMsgArr[] = $fielsdStringForAdminArr[$i] . " is not match with master data for pareent email at row no -" . $errorRowNo;
+                                    $errorMsgArr[] = $fielsdStringForAdminArr[$i] . " is match with master data for pareent email at row no -" . $errorRowNo;
                                 }
                             }
 
@@ -770,7 +770,7 @@ class Bulk_upload_controller extends MY_Controller {
                                     $enrollData[$fielsdArr[$i]]=trim($r[$i]);
                                 }else{
                                     $error = TRUE;
-                                    $errorMsgArr[] = $fielsdStringForAdminArr[$i] . " is not match with master data for pareent email at row no -" . $errorRowNo;
+                                    $errorMsgArr[] = $fielsdStringForAdminArr[$i] . " is match with master data for pareent email at row no -" . $errorRowNo;
                                 }
                             }
                         }
@@ -797,16 +797,14 @@ class Bulk_upload_controller extends MY_Controller {
                
                 //pre('$error'); 
                 if ($error === FALSE) {
-                    $sectionDataDetails=get_data_generic_fun('sc_section','*',array('classId'=>$enrollData['classId'],'name'=>$enrollData['sectionId']));
+                    $sectionDataDetails=get_data_generic_fun('sc_section','*',array('classId'=>$enrollData['classId'],'name'=>$eenrollData['sectionId']));
                     if(count($sectionDataDetails)>0){
                         $userData=array('fName'=>$data['fName'],'lName'=>$data['lName'],'phoneNumber'=>$data['phoneNumber'],'userName'=>$data['userName'],'communicationEmail'=>$data['userName']);
                         
                         $userDataArr = array();
                         $userDataArr = bulk_upload_generate_user_table_data_arr($userData, array('typeText' => 'student'));
-                        //pre($userDataArr);
-                        //
                         $userId = $this->Sc_user_model->add($userDataArr);
-                        //$userId=14;
+                        //$userId=10;
         
                         unset($data['fName']);
                         unset($data['lName']);
@@ -818,18 +816,16 @@ class Bulk_upload_controller extends MY_Controller {
                         //$dataStudent['date_added'] = strtotime(date("Y-m-d H:i:s"));
                         
                         //pre('final student data');
-                        unset($enrollData['classId']);
-                        $enrollData['sectionId']=$sectionDataDetails[0]->sectionId;
-                        $enrollData['studentId']=$userId;
-                        
-                        //pre($enrollData);
-                        //pre($data); die;
+                        pre($data); die;
                         //pre($dataStudent);die;
                         $this->load->model("Sc_student_model");
                         $this->Sc_student_model->add($data);
 
+                        $enrollData['sectionId']=$sectionDataDetails[0]->sectionId;
+                        $enrollData['studentId']=$userId;
                         $finaleEnrollData=generate_enroll_data_arr($enrollData);
-                        $this->Sc_student_model->enroll_student($finaleEnrollData);
+                        $this->Sc_student_model->enroll_student($data);
+
                         $studentParentData['studentId']=$userId;
                         $this->Sc_student_model->connect_with_parent($studentParentData);
                     }else{
@@ -843,7 +839,7 @@ class Bulk_upload_controller extends MY_Controller {
                 }
                 $errorRowNo++;
             }
-            $this->final_bulk_upload_success_error_process('student',$someRowError,$errorMsgArr,$errorExcelArr);
+            $this->final_bulk_upload_success_error_process('teacher',$someRowError,$errorMsgArr,$errorExcelArr);
         }
     }
 

@@ -110,18 +110,18 @@
                                 </div>
                                 <div class="panel-body">
                                     <div class="row">
-                                        <?php echo form_open_multipart('principal/bulk_upload_controller/',array('class' => 'validate bluk_upload_form','id' => 'form-upload-student'))?>
+                                        <?php echo form_open_multipart('#',array('id' => 'form-upload-student', 'class' => 'validate bluk_upload_form'))?>
                                         <div class="col m6 s12 l4 text-center">
                                             <input type="file" name="userFile">
                                         </div>
                                         <div class="col m6 s12 l4 text-center">
                                             <!--<i class="mdi mdi-download"></i>-->
-                                            <button type="button" class="btn btn-default bulk-upload-template-download" data-usertype="student">
+                                            <button type="button" class="btn btn-default">
                                                 <i class="mdi mdi-download"></i>
                                             </button>
                                         </div>
                                         <div class="col m6 s12 l4 text-center">
-                                            <button type="button" class="btn btn-default upload-btn" data-formactionid="student_upload_process">
+                                            <button type="button" class="btn btn-default bulk-upload-template-download" data-usertype="student">
                                                 <i class="mdi mdi-upload"></i>
                                                 Submit
                                             </button>

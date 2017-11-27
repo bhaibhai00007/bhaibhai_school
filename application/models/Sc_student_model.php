@@ -2,8 +2,6 @@
 class Sc_student_model extends CI_Model {
     private $_table='sc_student';
     private $_table_user='sc_user';
-    private $_table_enroll='sc_enroll';
-    private $_table_join_parent='sc_student_parent';
     //private $_table_user='sc_';
     
     
@@ -30,13 +28,5 @@ class Sc_student_model extends CI_Model {
         return TRUE;
     }
 
-    function enroll_student($dataArr){
-        $this->db->insert($this->_table_enroll,$dataArr);
-        return $this->db->insert_id();
-    }
     
-    function connect_with_parent($dataArr){
-        $this->db->insert($this->_table_join_parent,$dataArr);
-        return $this->db->insert_id();
-    }
 }

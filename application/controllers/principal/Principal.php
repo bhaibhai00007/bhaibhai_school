@@ -260,10 +260,4 @@ class Principal extends MY_Controller {
         $this->load->view($this->erpUserTypeArr[$this->userType].'/holidays_list',$data);
 
     }
-    
-    function test(){
-        $enrollData=array('sectionId'=>3,'studentId'=>14);
-        $finaleEnrollData=generate_enroll_data_arr($enrollData);
-        pre($finaleEnrollData);
-    }
 }

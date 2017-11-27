@@ -19,7 +19,7 @@ echo $html_heading;?>
 <div class="col s9">
 <div class="col s3">
 <!-- Dropdown Trigger -->
-<a class='dropdown-button123 btn' data-beloworigin="true" href='#' data-activates='dropdown1'>Select Class</a>
+<a class='dropdown-button btn' data-beloworigin="true" href='#' data-activates='dropdown1'>Select Class</a>
 
 <!-- Dropdown Structure -->
 <ul id='dropdown1' class='dropdown-content'>
@@ -32,9 +32,9 @@ echo $html_heading;?>
 </div>
 <div class="col s3">
 <!-- Dropdown Trigger -->
-<a class='dropdown-button btn' data-beloworigin="true" href='#' data-activates='dropdown2'>Select Section</a>
+<a class='dropdown-button btn' data-beloworigin="true" href='#' data-activates='dropdown1'>Select Section</a>
 <!-- Dropdown Structure -->
-<ul id='dropdown2' class='dropdown-content'>
+<ul id='dropdown1' class='dropdown-content'>
 	<li><a href="#!">A</a></li>
 	<li class="divider"></li>
 	<li><a href="#!">B</a></li>
@@ -121,4 +121,3 @@ echo $html_heading;?>
 <script src="<?php echo SchoolSiteResourcesURL;?>bower_components/blueimp-file-upload/js/jquery.fileupload-video.js" type="text/javascript"></script>
 
  */?>
-

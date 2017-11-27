@@ -2,7 +2,6 @@
 
 if (!defined('BASEPATH'))
     exit('No direct script access allowed');
-
 if (!function_exists('short_words')) {
     function short_words($str, $NoOfWorrd = 20) {
         $strArr = explode(' ', $str);
@@ -17,6 +16,21 @@ if (!function_exists('short_words')) {
             }
         }
         return $shortStr;
+    }
+
+}
+
+if (!function_exists('my_seo_freindly_url')) {
+    function my_seo_freindly_url($String) {
+        $ChangedStr = preg_replace('/\%/', ' percentage', $String);
+        $ChangedStr = preg_replace('/\@/', ' at ', $ChangedStr);
+        $ChangedStr = preg_replace('/\'/', ' - ', $ChangedStr);
+        $ChangedStr = preg_replace('/\&/', ' and ', $ChangedStr);
+        $ChangedStr = preg_replace('/\s[\s]+/', '-', $ChangedStr);    // Strip off multiple spaces
+        $ChangedStr = preg_replace('/[\s\W]+/', '-', $ChangedStr);    // Strip off spaces and non-alpha-numeric
+        $ChangedStr = preg_replace('/^[\-]+/', '', $ChangedStr); // Strip off the starting hyphens
+        $ChangedStr = preg_replace('/[\-]+$/', '', $ChangedStr); // // Strip off the ending hyphens
+        return $ChangedStr;
     }
 
 }
@@ -89,6 +103,21 @@ if (!function_exists('user_role_check')) {
 
 }
 
+if (!function_exists('get_home_url')) {
+    function get_home_url() {
+        $CI = & get_instance();
+        $countryId = $CI->session->userdata('USER_SHIPPING_COUNTRY');
+        if ($countryId == 1) {
+            return base_url() . 'send-online-gifts-usa';
+        } else if ($countryId == 99) {
+            return base_url() . 'send-wine-cakes-flowers-online-india';
+        } else if ($countryId == 240) {
+            return base_url() . 'send-gifts-worldwide';
+        }
+    }
+
+}
+
 if (!function_exists('title_more_string')) {
     function title_more_string($str, $no_char = 22) {
         $strArr = explode(' ', $str);
@@ -105,6 +134,138 @@ if (!function_exists('title_more_string')) {
     }
 
 }
+
+if (!function_exists('return_current_country_code')) {
+    function return_current_country_code() {
+        return 'IN';
+        die;
+        $ip = $_SERVER['REMOTE_ADDR'];
+
+        $params = getopt('l:i:');
+        if (!isset($params['l']))
+            $params['l'] = 'puDQd5MDgVxy';
+        //if (!isset($params['i'])) $params['i'] = '24.24.24.24';
+        //if (!isset($params['i'])) $params['i'] = $ip; //'122.177.246.210';
+        if (!isset($params['i']))
+            $params['i'] = '122.177.246.210';
+
+        $query = 'http://geoip.maxmind.com/a?' . http_build_query($params);
+
+        $insights_keys = array(
+            'country_code',
+            'country_name',
+            'region_code',
+            'region_name',
+            'city_name',
+            'latitude',
+            'longitude',
+            'metro_code',
+            'area_code',
+            'time_zone',
+            'continent_code',
+            'postal_code',
+            'isp_name',
+            'organization_name',
+            'domain',
+            'as_number',
+            'netspeed',
+            'user_type',
+            'accuracy_radius',
+            'country_confidence',
+            'city_confidence',
+            'region_confidence',
+            'postal_confidence',
+            'error'
+        );
+
+        $curl = curl_init();
+        curl_setopt_array(
+                $curl, array(
+            CURLOPT_URL => $query,
+            CURLOPT_USERAGENT => 'MaxMind PHP Sample',
+            CURLOPT_RETURNTRANSFER => true
+                )
+        );
+
+        $resp = curl_exec($curl);
+
+        if (curl_errno($curl)) {
+            throw new Exception(
+            'GeoIP request failed with a curl_errno of '
+            . curl_errno($curl)
+            );
+        }
+
+        $insights_values = str_getcsv($resp);
+        $insights_values = array_pad($insights_values, sizeof($insights_keys), '');
+        $insights = array_combine($insights_keys, $insights_values);
+        return $insights['country_code'];
+    }
+
+    //send_sms_notification($data){
+}
+
+if (!function_exists('send_sms_notification')):
+    function send_sms_notification($data) {
+        $CI = & get_instance();
+        $CI->load->model('User_model', 'user');
+        $CI->load->model('Siteconfig_model', 'siteconfig');
+        $CI->load->library('tidiitsms');
+        /*
+          $notify['senderId'] = ;
+          $notify['receiverId'] = ;
+          $notify['nType'] = ;
+          $notify['nTitle'] = ;
+          $notify['nMessage'] = ;
+         */
+        $SMS_SEND_ALLOW = $CI->siteconfig->get_value_by_name('SMS_SEND_ALLOW');
+        if ($SMS_SEND_ALLOW == 'yes') {
+            $smsLogPath = ResourcesPath . 'sms_log/' . date('d-m-Y') . '/';
+            if (!is_dir($smsLogPath)) { //create the folder if it's not already exists
+                @mkdir($smsLogPath, 0755, TRUE);
+            }
+            $logData = $data['nMessage'] . ' message send mobile no ' . $data['receiverMobileNumber'];
+            $smsLogFile = $smsLogPath . time() . uniqid() . '.txt';
+            if (!write_file($smsLogFile, $logData)) {
+                //echo 'Unable to write the file';
+            } else {
+                //echo 'File written!';
+            }
+            if (!array_key_exists('receiverMobileNumber', $data)) {
+                return FALSE;
+            } elseif ($data['receiverMobileNumber'] == "") {
+                return FALSE;
+            } else {
+                if (!array_key_exists('senderId', $data)) {
+                    $data['senderId'] = "";
+                }
+
+                if (!array_key_exists('receiverId', $data)) {
+                    $data['receiverId'] = "";
+                }
+
+                if (!array_key_exists('senderMobileNumber', $data)) {
+                    $data['senderMobileNumber'] = "";
+                }
+
+                if (!array_key_exists('nType', $data)) {
+                    $data['nType'] = "";
+                }
+                //Send Mobile message
+                $smsAddHistoryDataArr = array();
+                $smsConfig = array('sms_text' => $data['nMessage'], 'receive_phone_number' => $data['receiverMobileNumber']);
+                $smsResult = $CI->tidiitsms->send_sms($smsConfig);
+
+                $smsAddHistoryDataArr = array('senderUserId' => $data['senderId'], 'receiverUserId' => $data['receiverId'],
+                    'senderPhoneNumber' => $data['senderMobileNumber'], 'receiverPhoneNumber' => $data['receiverMobileNumber'],
+                    'IP' => $CI->input->ip_address(), 'sms' => $data['nMessage'], 'sendActionType' => $data['nType'],
+                    'smsGatewaySenderId' => $CI->siteconfig->get_value_by_name('SMS_GATEWAY_SENDERID'), 'smsGatewayReturnData' => $smsResult);
+                $CI->user->add_sms_history($smsAddHistoryDataArr);
+            }
+        }
+    }
+
+endif;
 
 if (!function_exists('get_full_address_from_lat_long')):
     function get_full_address_from_lat_long($lat, $long) {
@@ -160,6 +321,116 @@ if (!function_exists('get_formatted_address_from_lat_long')):
     }
 
 endif;
+
+if (!function_exists('send_push_notification')) {
+    function send_push_notification($data) {
+        $CI = & get_instance();
+        $CI->load->model('User_model', 'user');
+        $CI->load->model('Siteconfig_model', 'siteconfig');
+        //$CI->load->library('tidiitsms');
+        /*
+          $notify['senderId'] = ;
+          $notify['receiverId'] = ;
+          $notify['nType'] = ;
+          $notify['nTitle'] = ;
+          $notify['nMessage'] = ;
+         */
+
+
+        //die('rrr');
+        if (!array_key_exists('receiverId', $data)) {
+            return FALSE;
+        } elseif ($data['receiverId'] == "") {
+            return FALSE;
+        } else {
+            $regIds = $this->user->get_reg_id_by_user_id($data['receiverId']);
+            if ($regIds != FALSE) {
+                //'data' =>
+                $apiData = array('message' => $data['nMessage'], 'userId' => $data['receiverId']);
+                $regIdArr = array();
+                foreach ($regIds AS $k) {
+                    $sendNotificationFlag = FALSE;
+                    //$regIdArr[]=$k->registrationId;
+                    $fields = array($k->registrationId, $data['nMessage']);
+                    if ($data['nType'] == "BUYING-CLUB-ADD" || $data['nType'] == "BUYING-CLUB-MODIFY" || $data['nType'] == "BUYING-CLUB-MODIFY-NEW" || $data['nType'] == "BUYING-CLUB-MODIFY-DELETE") {
+                        $apiData['notificationType'] = $data['nType'];
+                        $apiData['tagStr'] = $data['nType'];
+                        $sendNotificationFlag = TRUE;
+                    } else if ($data['nType'] == "BUYING-CLUB-ORDER-DECLINE") {
+                        $apiData['orderId'] = $data['orderId'];
+                        $sendNotificationFlag = TRUE;
+                    } else if ($data['nType'] == "BUYING-CLUB-ORDER") {
+                        $apiData['orderId'] = $data['orderId'];
+                        $sendNotificationFlag = TRUE;
+                    }
+
+                    $apiData['tagStr'] = $data['nType'];
+                    if ($sendNotificationFlag == TRUE) {
+                        if (send_gsm_message($fields, $data['nType']) == TRUE) {
+                            foreach ($regIds as $kk) {
+                                $dataArr[] = array('messsage' => $data['nMessage'], 'registrationNo' => $kk->registrationId, 'deviceType' => 'android', 'sendTime' => date('Y-m-d H:i:s'), 'userId' => $data['receiverId']);
+                            }
+                            $CI->user->save_push_notification_history($dataArr);
+                        }
+                    }
+                }
+            } else {
+                return FALSE;
+            }
+        }
+    }
+
+}
+
+if (!function_exists('send_normal_push_notification')) {
+    function send_normal_push_notification($data) {
+        $CI = & get_instance();
+        $CI->load->model('User_model', 'user');
+        $CI->load->model('Siteconfig_model', 'siteconfig');
+        //$CI->load->library('tidiitsms');
+        /*
+          $notify['senderId'] = ;
+          $notify['receiverId'] = ;
+          $notify['nType'] = ;
+          $notify['nTitle'] = ;
+          $notify['nMessage'] = ;
+         */
+
+        //die('rrr');
+        if (!array_key_exists('receiverId', $data)) {
+            return FALSE;
+        } elseif ($data['receiverId'] == "") {
+            return FALSE;
+        } else {
+            $regIds = $CI->user->get_reg_id_by_user_id($data['receiverId']);
+            if ($regIds != FALSE) {
+                $regIdArr = array();
+                foreach ($regIds AS $k) {
+                    //$regIdArr[]=$k->registrationId;
+                    $fields = array($k->registrationId, $data['nMessage']);
+                    if (send_gsm_message($fields) == TRUE) {
+                        foreach ($regIds as $kk) {
+                            $dataArr[] = array('messsage' => $data['nMessage'], 'registrationNo' => $kk->registrationId, 'deviceType' => 'android', 'sendTime' => date('Y-m-d H:i:s'), 'userId' => $data['receiverId']);
+                        }
+                        $CI->user->save_push_notification_history($dataArr);
+                    }
+                    //}
+                    //$fields=array('registration_ids'=>$regIdArr,'data' =>array('message'=>$data['nMessage']));
+                    /* $fields=array($regIdArr,$data['nMessage']);
+                      if(send_gsm_message($fields)==TRUE){
+                      foreach($regIds as $k){
+                      $dataArr[]=array('messsage'=>$data['nMessage'],'registrationNo'=>$k->registrationId,'deviceType'=>'android','sendTime'=>date('Y-m-d H:i:s'),'userId'=>$data['receiverId']);
+                      }
+                      $CI->user->save_push_notification_history($dataArr);
+                      } */
+                }
+            } else {
+                return FALSE;
+            }
+        }
+    }
+
+}
 
 if (!function_exists('send_gsm_message')) {
     function send_gsm_message($fields_data, $action_data = "") {
@@ -234,6 +505,154 @@ if (!function_exists('generate_breadcrumb')) {
         return $breadcrumbStr;
     }
 
+}
+
+if (!function_exists('generate_user_table_data_arr')) {
+    function generate_user_table_data_arr($tableUserStructureTextArr,$type){
+        $CI=& get_instance();
+        $userDataArr=array();
+        foreach ($tableUserStructureTextArr AS $key => $val) {
+            $userDataArr[$key]= $CI->input->post($key,TRUE);
+        }
+        //$passcode=generate_passcode('teacher');
+        $passcode=generate_passcode($type['typeText']);
+        $userDataArr['passcode']=$passcode;
+        $userDataArr['password']= base64_encode($passcode).'~'.md5('jsrob');
+        $userDataArr['userType ']= substr($passcode, 0,3);
+        $userDataArr['status ']=1;
+        $userDataArr['schoolId']=$CI->session->userdata('USER_SCHOOL_ID');
+        if($userDataArr['schoolId']==""){
+            $userDataArr['schoolId']=1;
+        }
+        return $userDataArr;
+    }
+}
+
+if (!function_exists('bulk_upload_generate_user_table_data_arr')) {
+    function bulk_upload_generate_user_table_data_arr($userDataArr,$type){
+        $CI=& get_instance();
+        //$passcode=generate_passcode('teacher');
+        $passcode=generate_passcode($type['typeText']);
+        $userDataArr['passcode']=$passcode;
+        $userDataArr['password']= base64_encode($passcode).'~'.md5('jsrob');
+        $userDataArr['userType ']= substr($passcode, 0,3);
+        $userDataArr['status ']=1;
+        $userDataArr['schoolId']=$CI->session->userdata('USER_SCHOOL_ID');
+        if($userDataArr['schoolId']==""){
+            $userDataArr['schoolId']=1;
+        }
+        return $userDataArr;
+    }
+}
+
+if (!function_exists('generate_user_table_data_arr_for_edit')) {
+    function generate_user_table_data_arr_for_edit($tableUserStructureTextArr,$type){
+        $CI=& get_instance();
+        foreach ($tableUserStructureTextArr AS $key => $val) {
+            if(!array_key_exists('not_editable', $val))
+                $userDataArr[$key]= $CI->input->post($key,TRUE);
+        }
+        return $userDataArr;
+    }
+}
+
+if (!function_exists('generate_form_validation_arr')) {
+    function generate_form_validation_arr($tableTeacherStructureTextArr,$formValidationConfigArr=array(),$actionEdit=FALSE){
+        foreach ($tableTeacherStructureTextArr AS $key => $val) {
+            if($actionEdit==TRUE && array_key_exists('not_editable', $val)){
+                continue;
+            }else{
+                $tempArr = array('field' => $key, 'label' => $val['label']);
+                $ruleStr = 'trim|xss_clean';
+                $ruleStr .= generate_form_validation_rules($val);
+                $tempArr['rules'] = $ruleStr;
+                $formValidationConfigArr[] = $tempArr;
+            }
+        }
+        return $formValidationConfigArr;
+    }
+}
+
+if (!function_exists('generate_form_validation_rules')) {
+    function generate_form_validation_rules($val){
+        $ruleStr = '';
+        if (array_key_exists('required', $val)):
+            $ruleStr .= '|required';
+        //$element.=' required="required"';
+        endif;
+        if (array_key_exists('type', $val)):
+            if ($val['type'] == 'email') {
+                $ruleStr .= '|valid_email';
+            }
+            if ($val['type'] == 'tel') {
+                $ruleStr .= '|numeric|max_length[10]';
+            }
+        endif;
+        
+        if (array_key_exists('is_unique', $val)):
+            $ruleStr .= '|is_unique[' . $val['is_unique'] . ']';
+        //$element.=' required="required"';
+        endif;
+        return $ruleStr;
+    }
+}
+
+if (!function_exists('generate_passcode')) {
+    function generate_passcode($type){
+        $passcode='';
+        switch ($type){
+            case 'parent':
+                $passcode='PAR';
+                break;
+            case 'student':
+                $passcode='STU';
+                break;
+            case 'teacher':
+                $passcode='TEA';
+                break;
+            case 'librarian':
+                $passcode='LIA';
+                break;
+            case 'accountant':
+                $passcode='ACC';
+                break;
+            case 'busdriver':
+                $passcode='BUS';
+                break;
+            case 'pricipal':
+                $passcode='PRI';
+                break;
+            defult:
+            break;
+        }
+        $length=5;
+        $randumStr=substr(str_shuffle(str_repeat($x='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil($length/strlen($x)) )),1,$length);
+        $length=4;
+        $randumStr1=substr(str_shuffle(str_repeat($x=time(), ceil($length/strlen($x)) )),1,$length);
+        $passcode.=$randumStr.$randumStr1;
+        return $passcode;
+    }
+}
+
+
+if(!function_exists('generate_roll_no')){
+    function generate_roll_no($class_id,$section_id){
+        if($section_id=="" || $section_id == ""){
+            return FALSE;
+        }else{
+            $CI=&get_instance();
+            $sqlRoll="SELECT MAX(roll) latest_roll FROM enroll WHERE class_id='".$class_id."' AND section_id='".$section_id."'";
+            generate_log($sqlRoll);
+            $rsRoll=$CI->db->query($sqlRoll)->result_array();
+            generate_log(serialize($rsRoll));
+            generate_log("==".$rsRoll[0]['latest_roll']."==");
+            if(count($rsRoll)>0 || $rsRoll[0]['latest_roll']!=NULL || $rsRoll[0]['latest_roll']!=""){
+                return (int)$rsRoll[0]['latest_roll']+1;
+            }else{
+                return 1;
+            }
+        }
+    }
 }
 
 if(!function_exists('get_user_img_url')){
@@ -363,6 +782,38 @@ if(!function_exists('generate_log')){
     }
 }
 
+if ( ! function_exists('success_response_after_post_get')){
+    function success_response_after_post_get($parram){
+        $result=array();
+        if(!array_key_exists('ajaxType', $parram)):
+            if(array_key_exists('master_ip', $parram)){
+                $result=  get_default_urls($parram['master_ip']);    
+            }else{
+                $result=  get_default_urls();    
+            }
+        endif;
+        //$result['message']="Shipping address data updated successfully.";
+        $result['timestamp'] = time();
+        if(!empty($parram)):
+            foreach ($parram as $k => $v){
+                $result[$k]=$v;
+            }
+        endif;
+        
+        header('Content-type: application/json');
+        echo json_encode($result);
+    }
+}
+
+if ( ! function_exists('get_default_urls')){
+    function get_default_urls($ip=SMS_IP_ADDR){
+        $result=array();
+        $result['site_logo_image_url']='http://'.$ip.'/upload/';
+        $result['site_image_url']='http://'.$ip.'/assets/images/';
+        $result['site_image_url']='http://'.$ip.'/assets/images/';
+        return $result;
+    }
+}
 
 if(!function_exists('get_data_generic_fun')){
     /**
@@ -389,7 +840,7 @@ if(!function_exists('get_data_generic_fun')){
     * get_data_generic_fun('parent','parent_id,passcode',array('passcode'=>$passcoad,'device_token'=>$deviceToken,'condition_type'=>'or'),array('parrent_id'=>'asc','date_time'=>'desc'),1);
     */
    function get_data_generic_fun($table_name,$columnName="*",$conditionArr=array(),$return_type="result",$sortByArr=array(),$limit=""){
-       $CI = &get_instance();
+       $CI= & get_instance();
        $CI->db->select($columnName);
        $condition_type='and';
        if(array_key_exists('condition_type', $conditionArr)){
@@ -446,6 +897,20 @@ if(!function_exists('get_data_generic_fun')){
    } 
 } 
 
+if(!function_exists('create_excel_file')){
+    function create_excel_file($file_name_path,$data,$sheet_title="Student Upload Data"){
+        include_once APPPATH.'third_party/PHPExcel.php';
+        
+        $objPHPExcel=new PHPExcel();
+        $objPHPExcel->setActiveSheetIndex(0)->fromArray($data);
+        $objPHPExcel->getActiveSheet()->setTitle($sheet_title);
+        //$filename='just_some_random_name.xls'; 
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007'); //- See more at: https://arjunphp.com/how-to-use-phpexcel-with-codeigniter/#sthash.0d4ttuQe.dpuf
+        //$filePath=$_SERVER['DOCUMENT_ROOT'].'/rentbike/uploads/'.$filename;
+        $objWriter->save($file_name_path);
+    }
+}
+
 if(!function_exists('fire_api_by_curl')){
     function fire_api_by_curl($url,$post){
         generate_log($url.PHP_EOL);
@@ -484,77 +949,59 @@ if(!function_exists('admission_process_allow')){
         }else{
             return 0;
         }
-    }   
+    }
+    
 }
 
-if(!function_exists('get_current_school_sessionid')):
-    function get_current_school_sessionid(){
-        /// get data from setting by query..
-        $CI=&get_instance();
-        $CI->load->model('Sc_settings_model');
-        $sessionId=$CI->Sc_settings_model->get_current_session_id();
-        //die('sessionId : '.$sessionId);
-        return $sessionId;
-    }
-endif;
-
-if(!function_exists('send_notification_by_group')):
-    function send_notification_by_group($notificationGroup,$sendTos,$messageArr){
+if(!function_exists('create_excel_file_multiple_sheet')){
+    function create_excel_file_multiple_sheet($file_name_path,$data){
+        include_once APPPATH.'third_party/PHPExcel.php';
+        //pre($data);die;
+        $objPHPExcel=new PHPExcel();
+        foreach($data AS $k => $v){ 
+            $key= array_keys($v);
+            //pre($key);die;
+            $cSheetData=array();
+            $cSheetData=$v[$key[0]];
+            //pre($key);
+            //pre($cSheetData);die;
+            if($key==0){
+                $objPHPExcel->setActiveSheetIndex(0)->fromArray($cSheetData);
+                $objPHPExcel->getActiveSheet()->setTitle($key[0]);
+            }else{
+                $objPHPExcel->createSheet();
+                $sheet = $objPHPExcel->setActiveSheetIndex($k);
+                $sheet->fromArray($cSheetData);
+                $sheet->setTitle($key[0]);
+            }
+        }
         
+        //$filename='just_some_random_name.xls'; 
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007'); //- See more at: https://arjunphp.com/how-to-use-phpexcel-with-codeigniter/#sthash.0d4ttuQe.dpuf
+        //$filePath=$_SERVER['DOCUMENT_ROOT'].'/rentbike/uploads/'.$filename;
+        $objWriter->save($file_name_path);
     }
-endif;
+}
 
-/**
- * 
- * $notificationGroup ==>> school_in,school_out,exam,function etc
- * $sendToType mostly 3 type as bellow
- *      1 =>common,
- *      2=>Specific Group like 
- *             parent,teacher,student 
- *                           if student then class and section must specificy
- *      3=>by ids group of ids wit type
-*    example :-
-*    for 1 case $sendToType=array('groupType'=>'common');
-*    for 2 case
- *          $sendToType=array('groupType'=>'specific','groupMemberType'=>'teacher'); 
- *          $sendToType=array('groupType'=>'specific','groupMemberType'=>'parent','classId'=>5);
- *          $sendToType=array('groupType'=>'specific','groupMemberType'=>'student','classId'=>5,'sectionId'=>10);
- *   for 3 case
- *          $sendToType=array('groupType'=>'ungroup'); 
- * $messageArr=array('msgBody'=>$messageContent,'msgTitle'=>'message title');
- * 
- * if $sendToType groupType will 'ungroup' then send there user ids by array else it will nothing
- * 
- */
-if(!function_exists('fire_notification_manager')):
-    function fire_notification_manager($notificationGroup,$sendToType,$messageArr,$sendTos=array()){
-        if($sendToType['groupType']=='ungroup'):
-            /// sending message now istead of store it in queue
-            send_notification_by_group($notificationGroup,$sendTos,$messageArr);
-        else:
-            //store it is quue
-            $CI=&get_instance();
-            $CI->load->model('Sc_notification_queue_model');
-            $dataArr=array('notificationGroupId'=>$notificationGroup,$sendToType['groupType']);
-            if(array_key_exists('groupMemberType',$sendToType)):
-                $dataArr['groupMemberType']=$sendToType['groupMemberType'];
-            endif;
+if(!function_exists('read_mark_data_from_excel_file')){
+    function read_mark_data_from_excel_file($file_path){
+        include_once APPPATH.'third_party/PHPExcel.php';
+        //include  FCPATH.'application/third_party/PHPExcel/IOFactory.php';
+        $objReader = PHPExcel_IOFactory::createReader('Excel2007');
+        $objReader->setReadDataOnly(true);
 
-            if(array_key_exists('classId',$sendToType)):
-                $dataArr['classId']=$sendToType['classId'];
-            endif;
-
-            if(array_key_exists('sectionId',$sendToType)):
-                $dataArr['sectionId']=$sendToType['sectionId'];
-            endif;
-            $dataArr['msgBody']=$messageArr['msgBody'];
-
-            if(array_key_exists('msgTitle',$messageArr)):
-                $dataArr['msgTitle']=$sendToType['msgTitle'];
-            endif;
-            $this->Sc_notification_queue_model->add($dataArr);
-        endif;
+        $objPHPExcel = $objReader->load($file_path);
+        $totalSheet= $objPHPExcel->getSheetCount();
+        $i = 0;
+        $data=array();
+        while ($i<$totalSheet){
+            $objPHPExcel->setActiveSheetIndex($i);
+            $sheetTitle=$objPHPExcel->getActiveSheet()->getTitle();
+            $activeSheetData = $objPHPExcel->getActiveSheet()->toArray(null, true, true, true);
+            $data[$sheetTitle]=$activeSheetData;
+            $i++;
+        }
+        return $data;
     }
-endif;
-
+}
 
