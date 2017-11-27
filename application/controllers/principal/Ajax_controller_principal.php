@@ -553,23 +553,24 @@ class Ajax_controller_principal extends MY_Controller {
 
     function get_holiday_details_with_edit_mode(){
         $holidayId= $this->input->post("holidayId",TRUE);
+        //echo $holidayId; die;
         if($holidayId==""){
             echo json_encode(array('result' => 'bad', 'msg' => 'Inalid holiday index for update.'));die;
         }else{
+            
+            
+            
+            
+            echo $holidayId; die;
             $this->load->model('Sc_holiday_model');
             // $this->load->model('Sc_holiday_model');
             $dataArr= $this->Sc_holiday_model->get_full_details_by_id($holidayId);
             $table_holiday_structure_text= $this->Sc_holiday_model->_table_holiday_structure_text;
-            // $table_user_structure_text= $this->Sc_parent_model->_table_user_structure_text;
-            $table_user_structure_text_arr=array();
+            $table_holiday_structure_text_arr=array();
             foreach($table_holiday_structure_text AS $k =>$v){
-                if(array_key_exists('not_editable', $v)){
-                    $valueProp=$dataArr[0][$k];
-                }else{
-                    $valueProp='value="'.$dataArr[0][$k].'"';
-                }
+                $valueProp='value="'.$dataArr[0][$k].'"';
                 $v['elementEditVal']=$valueProp;
-                $table_user_structure_text_arr[$k]=$v;
+                $table_holiday_structure_text_arr[$k]=$v;
             }
             
             // $table_parent_structure_text_arr=array();
@@ -580,7 +581,7 @@ class Ajax_controller_principal extends MY_Controller {
             // }
            
             $data=array();
-            $data['table_user_structure_text']=$table_holiday_structure_text_arr;
+            $data['table_holiday_structure_text']=$table_holiday_structure_text_arr;
             //$data['table_parent_structure_text']=$table_parent_structure_text_arr;
             //pre($dataArr);die;
             $data['holidayDataArr']=$dataArr[0];
@@ -630,6 +631,7 @@ class Ajax_controller_principal extends MY_Controller {
         if ($this->form_validation->run() == FALSE) {
             echo json_encode(array('result' => 'bad', 'msg' => str_replace('</p>', '', str_replace('<p>', '', validation_errors()))));die;
         } else {
+            //echo "here"; die;
             $primeryKeVal= $this->input->post($this->Sc_holiday_model->_table_primary_key,TRUE);
             $oldHolidayDataArr= $this->Sc_holiday_model->get_details_by_id($primeryKeVal);
             //pre($teacherDataArr);die;

@@ -55,7 +55,7 @@ echo $html_heading;?>
                                             <th>Title</th>
                                             <th>Start Date</th>
                                             <th>End Date</th>
-                                            <th>Status</th>
+                                            <!-- <th>Status</th> -->
                                             <th class="center-align" data-searchable="false" data-orderable="false">Actions</th>
                                         </tr>
                                     </thead>
@@ -70,7 +70,7 @@ echo $html_heading;?>
                                             <td data-id="<?php echo $value['holidayId'];?>" width="20%"><?php echo $value['title'];?></td>
                                             <td width="25%"><?php echo $value['startDate'];?></td>
                                             <td width="15%"><?php echo $value['endDate'];?></td>
-                                            <td with="15%"><?php echo $value['status'];?></td>
+                                            <!-- <td with="15%"><?php //echo $value['status'];?></td> -->
                                             <td class="center-align" width="20%">
                                                 <div class="btn-group">
                                                     <a href="javascript:void(0);" class="btn-flat btn-small waves-effect">

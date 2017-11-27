@@ -35,7 +35,7 @@
                             var a = e(".datatable").DataTable();
                             a.row(t).remove().draw();
                             $("body").Lock({background: "rgba(249,249,249,.5)"});
-                            myJsMain.parent_delete(tableIndex);
+                            myJsMain.holiday_delete(tableIndex);
                         }, 1e3)
                     }}};
             e.Modal("Delete", d, c)

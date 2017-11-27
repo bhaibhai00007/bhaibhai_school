@@ -40,4 +40,5 @@ $lang['SUBJECT']="Subject";
 $lang['MESSAGE']="Message";
 $lang['MANAGE_ATTENDANCE']="Manage Attendance";
 $lang['ATTENDANCE_REPORT']="Attendance Report";
+$lang['MANAGE_HOLIDAY']="MANAGE HOLIDAY";
 ?>

@@ -252,10 +252,10 @@ class Principal extends MY_Controller {
         //$this->load->model('Sc_student_model');
         $data=$this->_get_logedin_template($this->_SEODataArr);
         $breadcrumb=array();
-        $breadcrumbItemArr=array('breadcrumbLink'=>'#','tooltip'=>'All Parents List','breadcrumbIcon'=>'fa-user','breadcrumbText'=>'Parent List');
+        $breadcrumbItemArr=array('breadcrumbLink'=>'#','tooltip'=>'All Holiday List','breadcrumbIcon'=>'fa-user','breadcrumbText'=>'Parent List');
         $breadcrumb[]=$breadcrumbItemArr;
         $data['breadcrumb']=  generate_breadcrumb($breadcrumb);
-        $data['holidayDataArr']=$this->Sc_holiday_model->get_list();
+        $data['holidayDataArr']=$this->Sc_holiday_model->get_holiday_list_for_principal();
         $data['holiday_list_arr']= $this->Sc_holiday_model->_table_holiday_structure_text;
         $this->load->view($this->erpUserTypeArr[$this->userType].'/holidays_list',$data);
 

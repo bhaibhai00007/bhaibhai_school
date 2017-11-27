@@ -94,8 +94,7 @@
                         <td>&nbsp;</td>
                     </tr>
                     <tr>
-                        <td><?php echo $this->lang->line('SUBJECT',FALSE);?></td>
-                        <td>&nbsp;</td>
+                        <td><a href="<?php echo BASE_URL.$this->erpUserTypeArr[$this->userType].'/principal/manage_holidays';?>"><?php echo $this->lang->line('MANAGE_HOLIDAY',TRUE);?></a></td>
                         <td><?php echo $this->lang->line('MESSAGE',FALSE);?></td>
                         <td>&nbsp;</td>
                         <td>&nbsp;</td>

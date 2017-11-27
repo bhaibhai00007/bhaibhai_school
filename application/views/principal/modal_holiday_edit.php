@@ -88,7 +88,7 @@ echo form_open_multipart(BASE_URL . $this->erpUserTypeArr[$this->userType] . '/a
                     <button type="reset" class="btn-flat waves-effect" onclick="$('#editActionWindow').modal('open');">
                         RESET
                     </button>
-                    <button type="submit" class="btn-flat waves-effect" id="parentEditSubmit">
+                    <button type="submit" class="btn-flat waves-effect" id="holidayEditSubmit">
                         SUBMIT
                     </button>
                 </div>
