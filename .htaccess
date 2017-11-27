@@ -1,0 +1,11 @@
+DirectoryIndex index.php
+RewriteEngine on
+
+#RewriteCond %{HTTP_HOST} ^tidiit-local.com$
+#RewriteRule (.*) https://tidiit-local.com/$1 [R=301,L]
+
+RewriteCond $1 !^(index\.php|uploads|css|js|lib|img|resources|demosandbox|robots\.txt|favicon\.ico|sitemap\.xml)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ ./index.php/$1 [L,QSA]
+#RewriteRule ^(.*)$ /index.php?/$1 [L]
